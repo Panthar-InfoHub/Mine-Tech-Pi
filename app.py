@@ -1,36 +1,27 @@
 from flask import Flask
-import RPi.GPIO as GPIO
+from gpiozero import LED
 
 app = Flask(__name__)
 
-# Define LED Pins
+# Define LED Pins using gpiozero
 LED_PINS = {
-    "red": 17,
-    "green": 27,
-    "yellow": 22
+    "red": LED(17),
+    "green": LED(27),
+    "yellow": LED(22)
 }
-
-# Setup GPIO
-GPIO.setmode(GPIO.BCM)  # Use Broadcom pin numbering
-GPIO.setwarnings(False)
-
-# Set all LED pins as OUTPUT
-for pin in LED_PINS.values():
-    GPIO.setup(pin, GPIO.OUT)
-    GPIO.output(pin, GPIO.LOW)  # Ensure LEDs start OFF
 
 
 @app.route('/')
 def hello_world():
-    return "Hello, Raspberry Pi LED Control!"
+    return "Hello, Raspberry Pi LED Control with gpiozero!"
 
 
 @app.route("/led/<color>/turn-on", methods=["GET"])
 def turn_on_led(color):
     if color not in LED_PINS:
         return f"Invalid color: {color}. Use 'red', 'green', or 'yellow'.", 400
-    
-    GPIO.output(LED_PINS[color], GPIO.HIGH)
+
+    LED_PINS[color].on()
     return f"{color} LED turned ON."
 
 
@@ -39,14 +30,15 @@ def turn_off_led(color):
     if color not in LED_PINS:
         return f"Invalid color: {color}. Use 'red', 'green', or 'yellow'.", 400
 
-    GPIO.output(LED_PINS[color], GPIO.LOW)
+    LED_PINS[color].off()
     return f"{color} LED turned OFF."
 
 
 # Cleanup GPIO when stopping
 @app.route("/shutdown", methods=["GET"])
 def shutdown():
-    GPIO.cleanup()
+    for led in LED_PINS.values():
+        led.close()  # Clean up LED resources
     return "GPIO Cleaned up and Flask server stopped."
 
 
