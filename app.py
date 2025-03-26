@@ -70,23 +70,15 @@ def process_video():
             logger.error("Invalid or empty 'bucket_urls' in request payload")
             return jsonify({'error': "Invalid or empty 'bucket_urls'"}), 400
 
+        # check if is_video keys exist and are a bool
         # Call the placeholder function and return its response
         logger.info("Calling Generation function")
-        response = analyze_video(bucket_urls=data["bucket_urls"])
+        response = analyze_video(bucket_urls=data["bucket_urls"], is_video=data["is_video"])
 
         # Add condition to ensure only heavy vehicles carrying mining or heavy goods are processed
-        if not isinstance(response, list) or not response:
+        if not isinstance(response, str) or not response:
             logger.error("Invalid response format from analyze_video")
             return jsonify({'error': "Invalid response from video analysis", "res": response}), 500
-
-        vehicle_data = response[0]  # Assuming the response list contains the analyzed data for a single vehicle
-        if (
-                vehicle_data.get("vehicle_type") not in ["Truck", "Heavy Load"] or
-                not vehicle_data.get("is_carrying_contents") or
-                vehicle_data.get("contents_details") not in ["mining", "heavy goods"]
-        ):
-            logger.warning("Vehicle does not meet the criteria for heavy vehicle and mining/heavy goods")
-            return jsonify({'error': "Vehicle does not meet the criteria"}), 400
 
         return response, 200
 
@@ -98,5 +90,4 @@ def process_video():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run()
