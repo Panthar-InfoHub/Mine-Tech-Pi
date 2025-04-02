@@ -85,9 +85,3 @@ def process_video():
     except Exception as exception:
         logger.error(f"Error processing image: {str(exception)}", exc_info=True)
         return jsonify({'error': 'Internal Server Error', 'message': str(exception)}), 500
-
-
-
-
-if __name__ == "__main__":
-    app.run()
