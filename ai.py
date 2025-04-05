@@ -16,7 +16,7 @@ logger = logging.getLogger('suraksha.ai')
 
 client = genai.Client(
     vertexai=True,
-    project='suraksha-kawach-151024',
+    project='minekawach',
     location='us-central1',
     http_options={'api_version': 'v1'}
 )
